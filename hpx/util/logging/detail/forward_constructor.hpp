@@ -17,10 +17,6 @@
 #ifndef JT28092007_forward_constructor_HPP_DEFINED
 #define JT28092007_forward_constructor_HPP_DEFINED
 
-#if defined(HPX_MSVC) && (HPX_MSVC >= 1020)
-# pragma once
-#endif
-
 #include <hpx/config.hpp>
 #include <hpx/util/logging/detail/fwd.hpp>
 
@@ -154,4 +150,3 @@ namespace hpx { namespace util { namespace logging {
 }}}
 
 #endif
-

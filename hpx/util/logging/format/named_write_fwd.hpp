@@ -17,10 +17,6 @@
 #ifndef JT28092007_format_named_writer_fwd_HPP_DEFINED
 #define JT28092007_format_named_writer_fwd_HPP_DEFINED
 
-#if defined(HPX_MSVC) && (HPX_MSVC >= 1020)
-# pragma once
-#endif
-
 #include <hpx/util/logging/format_fwd.hpp>
 
 #if !defined( HPX_LOG_COMPILE_FAST)
@@ -28,8 +24,4 @@
 #include <hpx/util/logging/writer/named_write.hpp>
 #endif
 
-
-
 #endif
-
-

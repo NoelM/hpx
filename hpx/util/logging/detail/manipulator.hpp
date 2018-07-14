@@ -17,10 +17,6 @@
 #ifndef JT28092007_manipulator_HPP_DEFINED
 #define JT28092007_manipulator_HPP_DEFINED
 
-#if defined(HPX_MSVC) && (HPX_MSVC >= 1020)
-# pragma once
-#endif
-
 #if defined(HPX_MSVC_WARNING_PRAGMA) && (HPX_MSVC >= 1020)
 #pragma warning(push)
 // 'class1' : inherits 'class2::member' via dominance
@@ -28,11 +24,12 @@
 #endif
 
 #include <hpx/util/logging/detail/fwd.hpp>
-#include <hpx/util/logging/detail/format_msg_type.hpp>
+#include <hpx/util/logging/format/optimize.hpp>
 
 #include <hpx/util/logging/format/op_equal.hpp>
 #include <hpx/util/logging/detail/forward_constructor.hpp>
 #include <memory>
+#include <string>
 // HPX_LOGGING_FORWARD_CONSTRUCTOR_WITH_NEW
 
 
@@ -109,7 +106,7 @@ even an @ref customize_optimize "optimization string class".
 So, it's not uncommon to do something like this:
 
 @code
-typedef optimize::cache_string_one_str<> cache_string;
+typedef optimize::cache_string_one_str cache_string;
 
 // formatter - needs to modify the message - use an optimizer while formatting
 typedef formatter::base< cache_string&> formatter_base;
@@ -129,22 +126,6 @@ to specify the default base classes:
 use the default formatter %base class and the default destination %base class.
 
 They are: <tt>formatter::base<> </tt> and <tt>destination::base<> </tt>.
-
-The default formatter %base class is computed based on your usage of the
-@ref HPX_LOG_FORMAT_MSG macro:
-- if you haven't used it, it's <tt>std::(w)string & </tt>
-- if you've used it, it's the type you specified there; see below
-
-@code
-HPX_LOG_FORMAT_MSG( optimize::cache_string_several_str<> )
-@endcode
-
-In the above case
-@code
-formatter::base<> = formatter::base< optimize::cache_string_several_str<>& >
-@endcode
-
-
 
 The default destination %base class is computed based on your usage of the
 @ref HPX_LOG_DESTINATION_MSG macro:
@@ -215,8 +196,6 @@ You can use the formatter and/or destination classes that come with the library:
   - destination::cout - writes to console
   - destination::stream - writes to a stream
   - destination::file - writes to file
-  - destination::rolling_file - writes to a rolling file
-  - destination::shared_memory - writes into shared memory
   (using @c hpx::util::shmem::named_shared_object)
 
 Or, you can create your own formatter and/or destination class. See below:
@@ -431,7 +410,7 @@ template<
     That is, this allows configuration of your manipulator (formatter/destination)
     at run-time.
     */
-    virtual void configure(const hold_string_type& ) {}
+    virtual void configure(const std::string& ) {}
 
 protected:
     // signify that we're only a base class - not to be used directly
@@ -480,7 +459,7 @@ template<class type, implement_op_equal::type op_e, class base_type> struct clas
     That is, this allows configuration of your manipulator
     (formatter/destination) at run-time.
     */
-    virtual void configure(const hold_string_type& ) {}
+    virtual void configure(const std::string& ) {}
 
 };
 
@@ -569,7 +548,7 @@ and do the best to convert what's in, to what they need.
 Example:
 @code
 template<class convert_dest = do_convert_destination > struct cout {
-    template<class msg_type> void operator()(const msg_type & msg) const {
+    void operator()(const msg_type & msg) const {
         convert_dest::write(msg, std::cout);
     }
 };
@@ -605,7 +584,7 @@ struct is_generic {
     That is, this allows configuration of your manipulator
     (formatter/destination) at run-time.
     */
-    virtual void configure(const hold_string_type& ) {}
+    virtual void configure(const std::string& ) {}
 };
 
 namespace detail {
@@ -629,7 +608,7 @@ namespace detail {
             m_val.operator()(val);
         }
 
-        virtual void configure(const hold_string_type& str) {
+        virtual void configure(const std::string& str) {
             m_val.configure(str);
         }
     };
@@ -666,10 +645,10 @@ See:
 */
 namespace formatter {
     namespace detail {
-        template<class arg, class ptr, class dummy = override >
+        template<class arg, class ptr>
         struct format_base_finder {
             typedef typename use_default<arg,
-                typename hpx::util::logging::formatter::msg_type<dummy>::type >
+                ::hpx::util::logging::optimize::cache_string_one_str >
                 ::type arg_type;
             typedef hpx::util::logging::manipulator::base< arg_type, arg_type &, ptr>
                 type;
@@ -735,10 +714,9 @@ See:
 */
 namespace destination {
     namespace detail {
-        template<class arg, class ptr, class dummy = override >
+        template<class arg, class ptr >
         struct destination_base_finder {
-            typedef typename use_default<arg,
-                typename hpx::util::logging::destination::msg_type<dummy>::type >
+            typedef typename use_default<arg, std::string >
                 ::type arg_type;
             typedef hpx::util::logging::manipulator::base< arg_type,
                 const arg_type &, ptr> type;
@@ -794,4 +772,3 @@ namespace destination {
 #endif
 
 #endif
-
